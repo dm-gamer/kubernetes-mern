@@ -1,0 +1,67 @@
+name: CI-CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    env:
+      KUBECONFIG: C:\Users\Sanjay\.kube\config
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use Node.js for backend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & test backend
+        working-directory: backend
+        shell: pwsh
+        run: |
+          npm ci
+          # npm test  # enable when you add tests
+
+      - name: Use Node.js for frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install & build frontend
+        working-directory: frontend
+        shell: pwsh
+        run: |
+          npm ci
+          npm run build
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & push backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          push: true
+          tags: sanjay5raj/backend:latest
+
+      - name: Build & push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          push: true
+          tags: sanjay5raj/frontend:latest
+
+      - name: Apply Kubernetes manifests
+        shell: pwsh
+        run: |
+          kubectl apply -f k8s/ -f backend/ -f frontend/
+          kubectl rollout status deployment/backend -n mern
+          kubectl rollout status deployment/frontend -n mern
