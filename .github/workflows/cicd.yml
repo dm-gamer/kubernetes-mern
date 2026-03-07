@@ -6,7 +6,11 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: self-hosted
+    runs-on: 
+      - self-hosted
+      - windows
+      - X64
+
 
     env:
       KUBECONFIG: C:\Users\Sanjay\.kube\config
@@ -22,7 +26,7 @@ jobs:
 
       - name: Install & test backend
         working-directory: backend
-        shell: pwsh
+        shell: powershell
         run: |
           npm ci
           # npm test  # enable when you add tests
@@ -34,7 +38,7 @@ jobs:
 
       - name: Install & build frontend
         working-directory: frontend
-        shell: pwsh
+        shell: powershell
         run: |
           npm ci
           npm run build
@@ -60,7 +64,7 @@ jobs:
           tags: sanjay5raj/frontend:latest
 
       - name: Apply Kubernetes manifests
-        shell: pwsh
+        shell: powershell
         run: |
           kubectl apply -f k8s/ -f backend/ -f frontend/
           kubectl rollout status deployment/backend -n mern
