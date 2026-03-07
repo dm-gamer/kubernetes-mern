@@ -44,6 +44,11 @@ body.auth-mode #root {
   gap: 1.75rem;
 }
 
+.app-dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
 .app-auth {
   width: 100%;
   max-width: none;
