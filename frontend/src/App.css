@@ -235,6 +235,8 @@ button.danger {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.5fr);
   gap: 1.25rem;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .students-header {
